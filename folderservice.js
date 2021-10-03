@@ -8,7 +8,7 @@ const boxApi = axios.create({
 });
 
 
-class Folderservice {
+class FolderService {
     constructor() {
         this.cache = [{folderId:0,path:""}];
     }
@@ -17,13 +17,22 @@ class Folderservice {
         return this.cache;
     }
 
+
+    /*
+        This is an async function, so needs to be called with await. For example:
+
+        import { FolderService } from "./folderservice.js";
+        var folderservice = new FolderService();
+
+        console.log(await folderservice.getFolderId("/30"));
+        console.log("-----------next--------------")
+        console.log(await folderservice.getFolderId("/30/31"));
+    */
+
     async getFolderId(path) {
         path = path.replace("/Company Home/Sites", "").trim();
         let entry = this.cache.find(entry => entry.path === path);
-
-        return (entry) ? entry.folderId : await this.fetchFolderId(path);
-
-        
+        return (entry) ? entry.folderId : (await this.fetchFolderId(path));        
     }
 
     async fetchFolderId(path) {
@@ -38,26 +47,23 @@ class Folderservice {
         try {
             let response = await boxApi.post("/folders/", requestBody)
             let returnedFolderId = response.data.id;
-            console.log("FetchFolder (Creation handling): Returning item ",returnedFolderId)
-            this.addFolderId(returnedFolderId, path)
+            this.cache.push({folderId:returnedFolderId,path:path})
             return returnedFolderId
         } 
         catch(error) {
             if (error.response.status == 409) {
                 let returnedFolderId = await error.response.data.context_info.conflicts[0].id;
-                console.log("FetchFolder (Duplicate handling): Returning item ", returnedFolderId)
-                this.addFolderId(returnedFolderId, path)
+                this.cache.push({folderId:returnedFolderId,path:path})
                 return await returnedFolderId
             } else {
-                console.log("FetchFolder (error handling: Returning error", error.response.statusText,requestBody)
+                console.log("FetchFolder (error handling): Returning error", error.response.statusText,requestBody)
             }
         }
     }
 
-    addFolderId(folderId,folderPath) {
-        this.cache.push({folderId:folderId,path:folderPath})
-    }
 
 }
 
-  export { Folderservice } ;
+  export { FolderService } ;
+
+  

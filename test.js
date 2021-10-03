@@ -1,17 +1,16 @@
-import { Folderservice } from "./folderservice.js";
+import { FolderService } from "./folderservice.js";
 
-var folderservice = new Folderservice();
+var folderservice = new FolderService();
+
+console.log(await folderservice.getFolderId("/30"));
+console.log("-----------next--------------")
+console.log(await folderservice.getFolderId("/30/31"));
+console.log("-----------next--------------")
+console.log(await folderservice.getFolderId("/30/31/40"));
+console.log("-----------next--------------")
+console.log(await folderservice.getFolderId("/30/31/41"));
+console.log(await folderservice.getFolderId("/30/31/42"));
+console.log(await folderservice.getFolderId("/30/31/43"));
 
 
-folderservice.getFolderId("/30").then(folderId => {
-    console.log(folderId)
-
-    console.log(folderservice.showCache())
-})
-folderservice.getFolderId("/30/31").then(folderId => {
-    console.log(folderId)
-
-    console.log(folderservice.showCache())
-})
-    
-   
+console.log(folderservice.showCache())
